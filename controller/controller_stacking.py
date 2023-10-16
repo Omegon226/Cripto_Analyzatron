@@ -6,9 +6,13 @@ import re
 class ControllerStacking:
     @staticmethod
     def stacking_info(message, **kwargs):
-        query = re.findall(r"\D+ ([\w]+)", message.text)[0]
-
-        kwargs["data"] = ControllerStacking.__get_data_from_request(kwargs["bot"].stakingrewards_token, query)
+        try:
+            query = re.findall(r"\D+ ([\w]+)", message.text)[0]
+            kwargs["bot"].logger.info(f'Начало stacking_info с запросом {query}')
+            kwargs["data"] = ControllerStacking.__get_data_from_request(kwargs["bot"].stakingrewards_token, query)
+        except:
+            kwargs["bot"].logger.info(f'Начало stacking_info с запросом {"polkadot"}')
+            kwargs["data"] = ControllerStacking.__get_data_from_request(kwargs["bot"].stakingrewards_token, "polkadot")
         ViewStacking.stacking_info(message, **kwargs)
 
     @staticmethod
@@ -37,6 +41,8 @@ class ControllerStacking:
         }
         stakingrewards_response_1 = requests.post(endpoint, json={"query": query}, headers=headers)
         stakingrewards_response_1_data = stakingrewards_response_1.json()
+        if stakingrewards_response_1_data == []:
+            return {"error": "Не удалось получить данные из запроса"}
 
         endpoint = "https://api.stakingrewards.com/public/query"
         query = '''
@@ -68,6 +74,8 @@ class ControllerStacking:
         }
         stakingrewards_response_2 = requests.post(endpoint, json={"query": query}, headers=headers)
         stakingrewards_response_2_data = stakingrewards_response_2.json()
+        if stakingrewards_response_2_data == []:
+            return {"error": "Не удалось получить данные из запроса"}
 
         stacking_providers = []
 

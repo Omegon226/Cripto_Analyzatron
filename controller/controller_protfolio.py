@@ -11,45 +11,55 @@ import time
 class ControllerPortfolio:
     @staticmethod
     def create_users_portfolio(message, **kwargs):
+        kwargs["bot"].logger.info(f'Начало create_users_portfolio')
         kwargs["bot"].db.create_or_wipe_portfolio(message.from_user.id)
-
         ViewPortfolio.create_users_portfolio(message, **kwargs)
 
     @staticmethod
     def change_asset_in_portfolio(message, **kwargs):
-        query = re.findall(r"\D+ ([\w\-\_]+) ([\d,.]+)", message.text)
-        assets_info = {}
+        try:
+            query = re.findall(r"\D+ ([\w\-\_]+) ([\d,.]+)", message.text)
+            kwargs["bot"].logger.info(f'Начало change_asset_in_portfolio с запросом {query}')
+            assets_info = {}
 
-        for data in query:
-            asset = data[0]
-            amount = float(data[1].replace(",", "."))
+            for data in query:
+                asset = data[0]
+                amount = float(data[1].replace(",", "."))
 
-            if asset in kwargs["bot"].coins_data.coins:
-                kwargs["bot"].db.add_or_change_asset(message.from_user.id, asset, amount)
-                assets_info[asset] = "Success"
-            else:
-                assets_info[asset] = "Failure"
+                if asset in kwargs["bot"].coins_data.coins:
+                    kwargs["bot"].db.add_or_change_asset(message.from_user.id, asset, amount)
+                    assets_info[asset] = "Success"
+                else:
+                    assets_info[asset] = "Failure"
 
-        kwargs["data"] = {"result_of_additing": assets_info}
-        ViewPortfolio.change_asset_in_portfolio(message, **kwargs)
+            kwargs["data"] = {"result_of_additing": assets_info}
+            ViewPortfolio.change_asset_in_portfolio(message, **kwargs)
+        except:
+            kwargs["data"] = {"error": "Не получилось добавить или изменить актив"}
+            ViewPortfolio.change_asset_in_portfolio(message, **kwargs)
 
     @staticmethod
     def delete_asset_from_portfolio(message, **kwargs):
-        query = re.findall(r"\/[a-zA-Z_]+ ([\w]+)", message.text)
+        try:
+            query = re.findall(r"\/[a-zA-Z_]+ ([\w]+)", message.text)
+            kwargs["bot"].logger.info(f'Начало delete_asset_from_portfolio с запросом {query}')
+            for asset in query:
+                kwargs["bot"].db.delete_asset(message.from_user.id, asset)
 
-        for asset in query:
-            kwargs["bot"].db.delete_asset(message.from_user.id, asset)
-
-        ViewPortfolio.delete_asset_from_portfolio(message, **kwargs)
+            ViewPortfolio.delete_asset_from_portfolio(message, **kwargs)
+        except:
+            kwargs["data"] = {"error": "Не получилось удалить актив"}
+            ViewPortfolio.delete_asset_from_portfolio(message, **kwargs)
 
     @staticmethod
     def get_assets_from_portfolio(message, **kwargs):
+        kwargs["bot"].logger.info(f'Начало get_assets_from_portfolio')
         kwargs["data"] = kwargs["bot"].db.get_portfolio(message.from_user.id)
         ViewPortfolio.get_assets_from_portfolio(message, **kwargs)
 
     @staticmethod
     def visualise_asset_portfolio(message, **kwargs):
-
+        kwargs["bot"].logger.info(f'Начало visualise_asset_portfolio')
         portfolio = kwargs["bot"].db.get_portfolio(message.from_user.id)
         data = {"name": [], "price": [], "amount": []}
 
@@ -68,6 +78,7 @@ class ControllerPortfolio:
 
     @staticmethod
     def assets_portfolio_changes(message, **kwargs):
+        kwargs["bot"].logger.info(f'Начало assets_portfolio_changes')
         prices = None
 
         portfolio = kwargs["bot"].db.get_portfolio(message.from_user.id)
@@ -118,8 +129,12 @@ class ControllerPortfolio:
         headers = {
             "x_cg_demo_api_key": coingecko_token
         }
-        response = requests.get(url, headers=headers).json()
-        price = response[crypto_id]["usd"]
+        response = requests.get(url, headers=headers)
+        if response not in [200, 300]:
+            return {"error": "Не удалось получить данные из запроса"}
+
+        response_data = response.json()
+        price = response_data[crypto_id]["usd"]
         return price
 
     @staticmethod
@@ -134,8 +149,12 @@ class ControllerPortfolio:
                 "Content-Type": "application/json",
                 "X-CoinGecko-Api-Key": coingecko_token,
             }
-            response = requests.get(url, params=params, headers=headers).json()
-            price = np.array(response["prices"])
+            response = requests.get(url, params=params, headers=headers)
+            if response not in [200, 300]:
+                return {"error": "Не удалось получить данные из запроса"}
+
+            response_data = response.json()
+            price = np.array(response_data["prices"])
             price = pd.DataFrame({
                 "date": price[:, 0],
                 crypto_id: price[:, 1]

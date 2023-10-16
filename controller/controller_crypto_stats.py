@@ -7,9 +7,15 @@ import re
 class ControllerCryptoStats:
     @staticmethod
     def crypto_stats(message, **kwargs):
-        query = re.findall(r"\D+ ([\w]+)", message.text)[0]
-
-        kwargs["data"] = ControllerCryptoStats.__get_data_from_request(kwargs["bot"].coinmarketcap_token, kwargs["bot"].coingecko_token, query)
+        try:
+            query = re.findall(r"\D+ ([\w]+)", message.text)[0]
+            kwargs["bot"].logger.info(f'Начало crypto_stats с запросом {query}')
+            kwargs["data"] = ControllerCryptoStats.__get_data_from_request(kwargs["bot"].coinmarketcap_token,
+                                                                           kwargs["bot"].coingecko_token, query)
+        except:
+            kwargs["bot"].logger.info(f'Начало crypto_stats с запросом "bitcoin"')
+            kwargs["data"] = ControllerCryptoStats.__get_data_from_request(kwargs["bot"].coinmarketcap_token,
+                                                                           kwargs["bot"].coingecko_token, "bitcoin")
         ViewCryptoStats.crypto_stats(message, **kwargs)
 
     @staticmethod
@@ -23,6 +29,9 @@ class ControllerCryptoStats:
             "X-CMC_PRO_API_KEY": coinmarketcap_token,
         }
         coinmarketcap_response_1 = requests.get(url, params=parameters, headers=headers)
+        if coinmarketcap_response_1 not in [200, 300]:
+            return {"error": "Не удалось получить данные из запроса"}
+
         coinmarketcap_response_1_data = coinmarketcap_response_1.json()
         coin_id = list(coinmarketcap_response_1_data["data"].keys())[0]
 
@@ -45,6 +54,9 @@ class ControllerCryptoStats:
             "X-CMC_PRO_API_KEY": coinmarketcap_token,
         }
         coinmarketcap_response_2 = requests.get(url, params=parameters, headers=headers)
+        if coinmarketcap_response_2 not in [200, 300]:
+            return {"error": "Не удалось получить данные из запроса"}
+
         coinmarketcap_response_2_data = coinmarketcap_response_2.json()["data"][coin_id]
 
         aggregated_data = {

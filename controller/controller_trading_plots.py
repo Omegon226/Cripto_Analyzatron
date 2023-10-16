@@ -9,11 +9,12 @@ class ControllerTradingPlots:
     def ohlc(message, **kwargs):
         try:
             query = re.findall(r"\D+ ([\w]+) ([\d]+)", message.text)[0]
-
+            kwargs["bot"].logger.info(f'Начало ohlc с запросом {query}')
             kwargs["data"] = ControllerTradingPlots.__get_data_from_request_ohlc(kwargs["bot"].coingecko_token,
                                                                                  query[0], query[1],
                                                                                  kwargs["bot"].coins_data)
         except:
+            kwargs["bot"].logger.info(f'Начало ohlc с запросом {["bitcoin", "30"]}')
             kwargs["data"] = ControllerTradingPlots.__get_data_from_request_ohlc(kwargs["bot"].coingecko_token,
                                                                                  "bitcoin", "30",
                                                                                  kwargs["bot"].coins_data)
@@ -24,11 +25,12 @@ class ControllerTradingPlots:
     def market_chart(message, **kwargs):
         try:
             query = re.findall(r"\D+ ([\w]+) ([\d]+)", message.text)[0]
-
+            kwargs["bot"].logger.info(f'Начало market_chart с запросом {query}')
             kwargs["data"] = ControllerTradingPlots.__get_data_from_request_market_chart(kwargs["bot"].coingecko_token,
                                                                                          query[0], query[1],
                                                                                          kwargs["bot"].coins_data)
         except:
+            kwargs["bot"].logger.info(f'Начало market_chart с запросом {["bitcoin", "30"]}')
             kwargs["data"] = ControllerTradingPlots.__get_data_from_request_market_chart(kwargs["bot"].coingecko_token,
                                                                                          "bitcoin", "30",
                                                                                          kwargs["bot"].coins_data)
@@ -42,6 +44,9 @@ class ControllerTradingPlots:
             "X-CoinGecko-Api-Key": coingecko_token,
         }
         response = requests.get(url, headers=headers)
+        if response not in [200, 300]:
+            return {"error": "Не удалось получить данные из запроса"}
+
         response_data = response.json()
         response_data = np.array(response_data).T.tolist()
 
@@ -67,6 +72,9 @@ class ControllerTradingPlots:
             "X-CoinGecko-Api-Key": coingecko_token,
         }
         response = requests.get(url, headers=headers)
+        if response not in [200, 300]:
+            return {"error": "Не удалось получить данные из запроса"}
+
         response_data = response.json()
 
         prices = np.array(response_data["prices"]).T.tolist()

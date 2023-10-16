@@ -7,14 +7,19 @@ import re
 class ControllerGlobalStats:
     @staticmethod
     def global_stats(message, **kwargs):
+        kwargs["bot"].logger.info(f'Начало global_stats')
         kwargs["data"] = ControllerGlobalStats.__get_data_for_global_stats(kwargs["bot"].coinmarketcap_token)
         ViewGlobalStats.global_stats(message, **kwargs)
 
     @staticmethod
     def top_coins(message, **kwargs):
-        query = re.findall(r"\D+ ([\d]+)", message.text)[0]
-
-        kwargs["data"] = ControllerGlobalStats.__get_data_top_coins(kwargs["bot"].coinmarketcap_token, int(query))
+        try:
+            query = re.findall(r"\D+ ([\d]+)", message.text)[0]
+            kwargs["bot"].logger.info(f'Начало top_coins с запросом {query}')
+            kwargs["data"] = ControllerGlobalStats.__get_data_top_coins(kwargs["bot"].coinmarketcap_token, int(query))
+        except:
+            kwargs["bot"].logger.info(f'Начало top_coins с запросом {20}')
+            kwargs["data"] = ControllerGlobalStats.__get_data_top_coins(kwargs["bot"].coinmarketcap_token)
         ViewGlobalStats.top_coins(message, **kwargs)
 
 
@@ -27,6 +32,9 @@ class ControllerGlobalStats:
         }
         # Отправляем запрос и получаем данные
         coinmarketcap_response = requests.get(url, headers=headers)
+        if coinmarketcap_response not in [200, 300]:
+            return {"error": "Не удалось получить данные из запроса"}
+
         coinmarketcap_response_data = coinmarketcap_response.json()
 
         # Создаём запрос к Alternative
@@ -58,6 +66,9 @@ class ControllerGlobalStats:
             "X-CMC_PRO_API_KEY": coinmarketcap_token,
         }
         response = requests.get(url, params=params, headers=headers)
+        if response not in [200, 300]:
+            return {"error": "Не удалось получить данные из запроса"}
+
         response_data = response.json()
 
         top_coins = response_data["data"]

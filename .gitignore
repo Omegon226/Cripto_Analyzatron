@@ -6,6 +6,7 @@ practice/
 docker-compose.yaml
 venv/
 resources/
+logs/
 
 main_aboba.py
 BTC-2017min.csv

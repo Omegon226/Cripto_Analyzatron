@@ -12,15 +12,21 @@ scope = PlotlyScope()
 class ViewFeatAndGreedData:
     @staticmethod
     def fear_and_greed_data(message, **kwargs):
-        kwargs["bot"].send_message(
-            message.chat.id,
-            f'Данные по индексу страха и жадности:\n\n'
-            f'* Текущий индекс страха и жадности: {kwargs["data"]["data"][0]["value"]}'
-        )
-        kwargs["bot"].send_photo(
-            message.chat.id,
-            ViewFeatAndGreedData.__create_fear_and_greed_timeseries(kwargs["data"])
-        )
+        if "error" in kwargs["data"].keys():
+            kwargs["bot"].send_message(
+                message.chat.id,
+                kwargs["data"]["error"]
+            )
+        else:
+            kwargs["bot"].send_message(
+                message.chat.id,
+                f'Данные по индексу страха и жадности:\n\n'
+                f'* Текущий индекс страха и жадности: {kwargs["data"]["data"][0]["value"]}'
+            )
+            kwargs["bot"].send_photo(
+                message.chat.id,
+                ViewFeatAndGreedData.__create_fear_and_greed_timeseries(kwargs["data"])
+            )
 
     @staticmethod
     def __create_fear_and_greed_timeseries(data):

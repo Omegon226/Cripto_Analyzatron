@@ -15,66 +15,102 @@ scope = PlotlyScope()
 class ViewPortfolio:
     @staticmethod
     def create_users_portfolio(message, **kwargs):
-        kwargs["bot"].send_message(
-            message.chat.id,
-            "Ваш портфель был создан! Теперь вы можете добавлять туда свои активы"
-        )
+        if "error" in kwargs["data"].keys():
+            kwargs["bot"].send_message(
+                message.chat.id,
+                kwargs["data"]["error"]
+            )
+        else:
+            kwargs["bot"].send_message(
+                message.chat.id,
+                "Ваш портфель был создан! Теперь вы можете добавлять туда свои активы"
+            )
 
     @staticmethod
     def change_asset_in_portfolio(message, **kwargs):
-        failure_assets = []
-
-        for asset in kwargs["data"]["result_of_additing"].keys():
-            if kwargs["data"]["result_of_additing"][asset] == "Failure":
-                failure_assets += [asset]
-
-        if len(failure_assets) == 0:
-            print_data = "Все активы были добавлены успешно!"
-        elif len(failure_assets) > 0:
-            print_data = "Активы были добавлены, но некоторые не получилось добавить. Попробуйте поменять их название\n"
-            print_data += f"Не добавлены следующие активы: {' ,'.join(failure_assets)}"
-        elif len(failure_assets) == len(kwargs["data"]["result_of_additing"]):
-            print_data = "Активы не были добавлены"
+        if "error" in kwargs["data"].keys():
+            kwargs["bot"].send_message(
+                message.chat.id,
+                kwargs["data"]["error"]
+            )
         else:
-            print_data = "ABOBA"
+            failure_assets = []
 
-        kwargs["bot"].send_message(
-            message.chat.id,
-            print_data
-        )
+            for asset in kwargs["data"]["result_of_additing"].keys():
+                if kwargs["data"]["result_of_additing"][asset] == "Failure":
+                    failure_assets += [asset]
+
+            if len(failure_assets) == 0:
+                print_data = "Все активы были добавлены успешно!"
+            elif len(failure_assets) > 0:
+                print_data = "Активы были добавлены, но некоторые не получилось добавить. Попробуйте поменять их название\n"
+                print_data += f"Не добавлены следующие активы: {' ,'.join(failure_assets)}"
+            elif len(failure_assets) == len(kwargs["data"]["result_of_additing"]):
+                print_data = "Активы не были добавлены"
+            else:
+                print_data = "ABOBA"
+
+            kwargs["bot"].send_message(
+                message.chat.id,
+                print_data
+            )
 
     @staticmethod
     def delete_asset_from_portfolio(message, **kwargs):
-        kwargs["bot"].send_message(
-            message.chat.id,
-            "Актив/ы были удалены из вашего портфеля"
-        )
+        if "error" in kwargs["data"].keys():
+            kwargs["bot"].send_message(
+                message.chat.id,
+                kwargs["data"]["error"]
+            )
+        else:
+            kwargs["bot"].send_message(
+                message.chat.id,
+                "Актив/ы были удалены из вашего портфеля"
+            )
 
     @staticmethod
     def get_assets_from_portfolio(message, **kwargs):
-        print_data = "Ваш портфель:\n\n"
+        if "error" in kwargs["data"].keys():
+            kwargs["bot"].send_message(
+                message.chat.id,
+                kwargs["data"]["error"]
+            )
+        else:
+            print_data = "Ваш портфель:\n\n"
 
-        for coin in kwargs["data"].keys():
-            print_data += f'* {coin}: {kwargs["data"][coin]}\n'
+            for coin in kwargs["data"].keys():
+                print_data += f'* {coin}: {kwargs["data"][coin]}\n'
 
-        kwargs["bot"].send_message(
-            message.chat.id,
-            print_data
-        )
+            kwargs["bot"].send_message(
+                message.chat.id,
+                print_data
+            )
 
     @staticmethod
     def visualise_asset_portfolio(message, **kwargs):
-        kwargs["bot"].send_photo(
-            message.chat.id,
-            ViewPortfolio.__create_asset_portfolio_pie(kwargs["data"])
-        )
+        if "error" in kwargs["data"].keys():
+            kwargs["bot"].send_message(
+                message.chat.id,
+                kwargs["data"]["error"]
+            )
+        else:
+            kwargs["bot"].send_photo(
+                message.chat.id,
+                ViewPortfolio.__create_asset_portfolio_pie(kwargs["data"])
+            )
 
     @staticmethod
     def assets_portfolio_changes(message, **kwargs):
-        kwargs["bot"].send_photo(
-            message.chat.id,
-            ViewPortfolio.__create_portfolio_changes_bar(kwargs["data"])
-        )
+        if "error" in kwargs["data"].keys():
+            kwargs["bot"].send_message(
+                message.chat.id,
+                kwargs["data"]["error"]
+            )
+        else:
+            kwargs["bot"].send_photo(
+                message.chat.id,
+                ViewPortfolio.__create_portfolio_changes_bar(kwargs["data"])
+            )
 
     @staticmethod
     def __create_asset_portfolio_pie(data):

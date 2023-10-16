@@ -12,25 +12,37 @@ scope = PlotlyScope()
 class ViewTradingPlots:
     @staticmethod
     def ohlc(message, **kwargs):
-        kwargs["bot"].send_message(
-            message.chat.id,
-            f'OHLC для {kwargs["data"]["coin_id"]} за последние {kwargs["data"]["days"]} дней'
-        )
-        kwargs["bot"].send_photo(
-            message.chat.id,
-            ViewTradingPlots.__create_ohlc_plot(kwargs["data"])
-        )
+        if "error" in kwargs["data"].keys():
+            kwargs["bot"].send_message(
+                message.chat.id,
+                kwargs["data"]["error"]
+            )
+        else:
+            kwargs["bot"].send_message(
+                message.chat.id,
+                f'OHLC для {kwargs["data"]["coin_id"]} за последние {kwargs["data"]["days"]} дней'
+            )
+            kwargs["bot"].send_photo(
+                message.chat.id,
+                ViewTradingPlots.__create_ohlc_plot(kwargs["data"])
+            )
 
     @staticmethod
     def market_chart(message, **kwargs):
-        kwargs["bot"].send_message(
-            message.chat.id,
-            f'График для {kwargs["data"]["coin_id"]} за последние {kwargs["data"]["days"]} дней'
-        )
-        kwargs["bot"].send_photo(
-            message.chat.id,
-            ViewTradingPlots.__create_market_chart_plot(kwargs["data"])
-        )
+        if "error" in kwargs["data"].keys():
+            kwargs["bot"].send_message(
+                message.chat.id,
+                kwargs["data"]["error"]
+            )
+        else:
+            kwargs["bot"].send_message(
+                message.chat.id,
+                f'График для {kwargs["data"]["coin_id"]} за последние {kwargs["data"]["days"]} дней'
+            )
+            kwargs["bot"].send_photo(
+                message.chat.id,
+                ViewTradingPlots.__create_market_chart_plot(kwargs["data"])
+            )
 
     @staticmethod
     def __create_ohlc_plot(data):
