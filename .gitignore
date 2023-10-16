@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.idea/
+practice/
+docker-compose.yaml
+venv/
+resources/
+
+main_aboba.py
+BTC-2017min.csv
+crypto_listing.json
+tokens.yaml
