@@ -22,6 +22,17 @@ class ControllerGlobalStats:
             kwargs["data"] = ControllerGlobalStats.__get_data_top_coins(kwargs["bot"].coinmarketcap_token)
         ViewGlobalStats.top_coins(message, **kwargs)
 
+    @staticmethod
+    def menu_global_stats(call, **kwargs):
+        kwargs["bot"].logger.info(f'Начало global_stats')
+        kwargs["data"] = ControllerGlobalStats.__get_data_for_global_stats(kwargs["bot"].coinmarketcap_token)
+        ViewGlobalStats.menu_global_stats(call, **kwargs)
+
+    @staticmethod
+    def menu_top_coins(call, **kwargs):
+        kwargs["bot"].logger.info(f'Начало top_coins с запросом {20}')
+        kwargs["data"] = ControllerGlobalStats.__get_data_top_coins(kwargs["bot"].coinmarketcap_token)
+        ViewGlobalStats.menu_top_coins(call, **kwargs)
 
     @staticmethod
     def __get_data_for_global_stats(coinmarketcap_token):

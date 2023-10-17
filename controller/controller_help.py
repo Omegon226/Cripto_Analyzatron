@@ -39,3 +39,6 @@ class ControllerHelp:
         else:
             ViewHelp.no_command(message, **kwargs)
 
+    @staticmethod
+    def menu_help(message, **kwargs):
+        ViewHelp.menu_help(message, **kwargs)

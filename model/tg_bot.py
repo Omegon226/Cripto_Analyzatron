@@ -1,4 +1,5 @@
 import telebot
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import logging
 import sys
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -10,6 +11,7 @@ from controller.controller_stacking import ControllerStacking
 from controller.controller_fear_and_greed_data import ControllerFeatAndGreedData
 from controller.controller_trading_plots import ControllerTradingPlots
 from controller.controller_protfolio import ControllerPortfolio
+from controller.controller_menu import ControllerMenu
 
 from model.db import DB
 from model.coingecko_coins_data import CoingeckoCoinsData
@@ -35,6 +37,20 @@ class TGBot(telebot.TeleBot):
         self.scheduler = BackgroundScheduler()
         self.scheduler.add_job(self.__update_coins_data, trigger="interval", hours=6)
         self.scheduler.start()
+
+    # Менюшка в боте
+    def markup_of_tg_menu(self):
+        markup = InlineKeyboardMarkup()
+        help_button = InlineKeyboardButton("Помощь", callback_data="menu_help")
+        markup.row(help_button)
+
+        global_stats_button = InlineKeyboardButton("Глобальная статистика", callback_data="menu_crypto_stats")
+        top_coins_button = InlineKeyboardButton("Топ 20 криптовалют", callback_data="menu_top_coins")
+        markup.row(global_stats_button, top_coins_button)
+        fag_data_button = InlineKeyboardButton("F&G индекс за 90 дней", callback_data="menu_fear_and_greed_data")
+        markup.row(fag_data_button)
+
+        return markup
 
     # Настройка логгера
     def __set_logger(self):
@@ -65,6 +81,17 @@ class TGBot(telebot.TeleBot):
         self.register_message_handler(ControllerPortfolio.get_assets_from_portfolio, commands=['get_assets'], pass_bot=True)
         self.register_message_handler(ControllerPortfolio.visualise_asset_portfolio, commands=['visualise_asset_portfolio'], pass_bot=True)
         self.register_message_handler(ControllerPortfolio.assets_portfolio_changes, commands=['assets_portfolio_changes'], pass_bot=True)
+
+        # Работа с меню
+        self.register_message_handler(ControllerMenu.get_menu, commands=['menu'], pass_bot=True)
+        self.register_callback_query_handler(ControllerHelp.menu_help,
+                                             lambda query: query.data == "menu_help", pass_bot=True)
+        self.register_callback_query_handler(ControllerGlobalStats.menu_global_stats,
+                                             lambda query: query.data == "menu_crypto_stats", pass_bot=True)
+        self.register_callback_query_handler(ControllerGlobalStats.menu_top_coins,
+                                             lambda query: query.data == "menu_top_coins", pass_bot=True)
+        self.register_callback_query_handler(ControllerFeatAndGreedData.menu_fear_and_greed_data,
+                                             lambda query: query.data == "menu_fear_and_greed_data", pass_bot=True)
 
     def __update_coins_data(self):
         self.coins_data = CoingeckoCoinsData(self.coingecko_token)

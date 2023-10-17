@@ -24,6 +24,31 @@ class ViewHelp:
         )
 
     @staticmethod
+    def menu_help(call, **kwargs):
+        kwargs["bot"].answer_callback_query(call.id, "Помощь выведена")
+        kwargs["bot"].send_message(
+            call.from_user.id,
+            "Существующие команды:\n\n"
+            "* /global_stats - отображает глобальную статистику рынка\n"
+            "* /top_coins {Кол-во криптовалют} - выводит заданное кол-во топ криптовалют\n"
+            "* /crypto_stats {Slug крипты} - вывод основной статистики криптовалюты\n"
+            "* /stacking_info {ISO крипты} - информация о стейкинге криптовалюты\n"
+            "* /fear_and_greed_data {Кол-во дней для визуализации} - отображает изменение индекса страха и жадности за выбранный период\n"
+            "* /ohlc {Slug крипты} {Кол-во дней для визуализации} - визуализация японских свечей криптовалюты\n"
+            "* /market_chart {Slug крипты} {Кол-во дней для визуализации} - визуализация тренда криптовалюты\n"
+
+            "* /create_asset_portfolio - создание/обнуление портфеля активов\n"
+            "* /change_asset {Slug крипты} {Кол-во криптовалюты} - задать или изменить данные об активе в портфеле\n"
+            "* /delet_asset {Slug крипты} - удалить актив из портфеля\n"
+            "* /get_assets - получение всех активов вашего портфеля\n"
+            "* /visualise_asset_portfolio - визуализация активов\n"
+            "* /assets_portfolio_changes - изменение цены портфеля от времени\n"
+
+            "\nБолее подробную информацию о командах можно посмотреть написав её после /help, например: "
+            "/help /top_coins или /help top_coins"
+        )
+
+    @staticmethod
     def help_global_stats(message, **kwargs):
         kwargs["bot"].send_message(
             message.chat.id,

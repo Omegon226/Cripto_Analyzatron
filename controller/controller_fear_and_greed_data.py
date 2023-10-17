@@ -17,6 +17,12 @@ class ControllerFeatAndGreedData:
         ViewFeatAndGreedData.fear_and_greed_data(message, **kwargs)
 
     @staticmethod
+    def menu_fear_and_greed_data(call, **kwargs):
+        kwargs["bot"].logger.info(f'Начало fear_and_greed_data с запросом {90}')
+        kwargs["data"] = ControllerFeatAndGreedData.__get_data_from_request()
+        ViewFeatAndGreedData.menu_fear_and_greed_data(call, **kwargs)
+
+    @staticmethod
     def __get_data_from_request(period=90):
         url = "https://api.alternative.me/fng/?limit=0"
         response = requests.get(url)

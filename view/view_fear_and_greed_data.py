@@ -29,6 +29,25 @@ class ViewFeatAndGreedData:
             )
 
     @staticmethod
+    def menu_fear_and_greed_data(call, **kwargs):
+        kwargs["bot"].answer_callback_query(call.id, "Данные за 90 дней по F&G индексу выведены")
+        if "error" in kwargs["data"].keys():
+            kwargs["bot"].send_message(
+                call.from_user.id,
+                kwargs["data"]["error"]
+            )
+        else:
+            kwargs["bot"].send_message(
+                call.from_user.id,
+                f'Данные по индексу страха и жадности:\n\n'
+                f'* Текущий индекс страха и жадности: {kwargs["data"]["data"][0]["value"]}'
+            )
+            kwargs["bot"].send_photo(
+                call.from_user.id,
+                ViewFeatAndGreedData.__create_fear_and_greed_timeseries(kwargs["data"])
+            )
+
+    @staticmethod
     def __create_fear_and_greed_timeseries(data):
         global scope
 

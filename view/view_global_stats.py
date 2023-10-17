@@ -34,8 +34,6 @@ class ViewGlobalStats:
 
     @staticmethod
     def top_coins(message, **kwargs):
-
-
         if "error" in kwargs["data"].keys():
             kwargs["bot"].send_message(
                 message.chat.id,
@@ -52,6 +50,52 @@ class ViewGlobalStats:
                 message.chat.id,
                 print_data
             )
+
+    @staticmethod
+    def menu_global_stats(call, **kwargs):
+        kwargs["bot"].answer_callback_query(call.id, "Глобальные данные о крипторынке получены")
+        if "error" in kwargs["data"].keys():
+            kwargs["bot"].send_message(
+                call.from_user.id,
+                kwargs["data"]["error"]
+            )
+        else:
+            kwargs["bot"].send_message(
+                call.from_user.id,
+                f'Глобальная статистика рынка:\n\n'
+                f'* Доминация BTC: {round(kwargs["data"]["btc_dominance"], 2)} %\n'
+                f'* Доминация ETH: {round(kwargs["data"]["eth_dominance"], 2)} %\n'
+                f'* Капитализация рынка: {humanize.intword(kwargs["data"]["usd_total_market_cap"], "%0.2f")} $\n'
+                f'* Изменение капитализации рынка за 24 часа: {round(kwargs["data"]["usd_total_volume_24h_percentage_change"], 2)} %\n'
+                f'* Рыночное цирк-ее кол-во долларов: {humanize.intword(kwargs["data"]["usd_total_volume_24h_reported"], "%0.2f")} $\n'
+                f'* Рыночное цирк-ее кол-во стейблкоинов: {humanize.intword(kwargs["data"]["usd_stablecoin_volume_24h_reported"], "%0.2f")} $\n'
+                f'* Циркулирующее кол-во долларов в альткойнах: {humanize.intword(kwargs["data"]["usd_altcoin_volume_24h_reported"], "%0.2f")} $'
+            )
+            kwargs["bot"].send_photo(
+                call.from_user.id,
+                ViewGlobalStats.__create_fear_and_greed_plot(kwargs["data"]["today_fear_and_greed_index"])
+            )
+
+    @staticmethod
+    def menu_top_coins(call, **kwargs):
+        kwargs["bot"].answer_callback_query(call.id, "Топ 20 криптовалют получено")
+        if "error" in kwargs["data"].keys():
+            kwargs["bot"].send_message(
+                call.from_user.id,
+                kwargs["data"]["error"]
+            )
+        else:
+            print_data = (
+                f'Топ {kwargs["data"]["amount_of_coins"]} монет:\n\n'
+            )
+            for coin in kwargs["data"]["top_coins"]:
+                print_data += f'* {coin["symbol"]} ({coin["slug"]}) Цена: {coin["quote"]["USD"]["price"]} $\n'
+
+            kwargs["bot"].send_message(
+                call.from_user.id,
+                print_data
+            )
+
 
     @staticmethod
     def __create_fear_and_greed_plot(fear_and_greed_index):
