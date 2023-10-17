@@ -41,11 +41,11 @@ class ControllerPortfolio:
     @staticmethod
     def delete_asset_from_portfolio(message, **kwargs):
         try:
-            query = re.findall(r"\/[a-zA-Z_]+ ([\w]+)", message.text)
+            query = re.findall(r"\/[a-zA-Z_]+ ([\w\-\_]+)", message.text)
             kwargs["bot"].logger.info(f'Начало delete_asset_from_portfolio с запросом {query}')
             for asset in query:
                 kwargs["bot"].db.delete_asset(message.from_user.id, asset)
-
+            kwargs["data"] = {"result_of_delete": "Операция произошла успешно"}
             ViewPortfolio.delete_asset_from_portfolio(message, **kwargs)
         except:
             kwargs["data"] = {"error": "Не получилось удалить актив"}
@@ -53,75 +53,94 @@ class ControllerPortfolio:
 
     @staticmethod
     def get_assets_from_portfolio(message, **kwargs):
-        kwargs["bot"].logger.info(f'Начало get_assets_from_portfolio')
-        kwargs["data"] = kwargs["bot"].db.get_portfolio(message.from_user.id)
-        ViewPortfolio.get_assets_from_portfolio(message, **kwargs)
+        try:
+            kwargs["bot"].logger.info(f'Начало get_assets_from_portfolio')
+            kwargs["data"] = kwargs["bot"].db.get_portfolio(message.from_user.id)
+            ViewPortfolio.get_assets_from_portfolio(message, **kwargs)
+        except:
+            kwargs["data"] = {"error": "Не получилось загрузить данные"}
+            ViewPortfolio.visualise_asset_portfolio(message, **kwargs)
 
     @staticmethod
     def visualise_asset_portfolio(message, **kwargs):
-        kwargs["bot"].logger.info(f'Начало visualise_asset_portfolio')
-        portfolio = kwargs["bot"].db.get_portfolio(message.from_user.id)
-        data = {"name": [], "price": [], "amount": []}
+        try:
+            kwargs["bot"].logger.info(f'Начало visualise_asset_portfolio')
+            portfolio = kwargs["bot"].db.get_portfolio(message.from_user.id)
+            data = {"name": [], "price": [], "amount": []}
 
-        for coin in portfolio:
-            data["name"] += [kwargs["bot"].coins_data.iso[coin].upper()]
-            data["price"] += [ControllerPortfolio.__get_price_of_coin(coin, kwargs["bot"].coingecko_token)]
-            data["amount"] += [portfolio[coin]]
+            for coin in portfolio:
+                data["name"] += [kwargs["bot"].coins_data.iso[coin].upper()]
+                data["price"] += [ControllerPortfolio.__get_price_of_coin(coin, kwargs["bot"].coingecko_token)]
+                data["amount"] += [portfolio[coin]]
 
-        portfolio = pd.DataFrame(data)
-        portfolio["sum"] = portfolio["price"] * portfolio["amount"]
-        portfolio_price = portfolio["sum"].sum()
+                if type(data["price"][-1]) not in [int, float]:
+                    kwargs["bot"].logger.warning(f'Данные по {coin} не были получены')
+                else:
+                    kwargs["bot"].logger.info(f'Данные по {coin} были получены')
 
-        kwargs["data"] = {"portfolio": portfolio, "portfolio_price": portfolio_price}
+            portfolio = pd.DataFrame(data)
+            portfolio["sum"] = portfolio["price"] * portfolio["amount"]
+            portfolio_price = portfolio["sum"].sum()
 
-        ViewPortfolio.visualise_asset_portfolio(message, **kwargs)
+            kwargs["data"] = {"portfolio": portfolio, "portfolio_price": portfolio_price}
+            ViewPortfolio.visualise_asset_portfolio(message, **kwargs)
+        except:
+            kwargs["data"] = {"error": "Данные не были успешно получены"}
+            ViewPortfolio.visualise_asset_portfolio(message, **kwargs)
 
     @staticmethod
     def assets_portfolio_changes(message, **kwargs):
-        kwargs["bot"].logger.info(f'Начало assets_portfolio_changes')
-        prices = None
+        try:
+            kwargs["bot"].logger.info(f'Начало assets_portfolio_changes')
+            prices = None
 
-        portfolio = kwargs["bot"].db.get_portfolio(message.from_user.id)
+            portfolio = kwargs["bot"].db.get_portfolio(message.from_user.id)
 
-        for idx, coin in enumerate(portfolio):
-            print(coin)
-            price = ControllerPortfolio.__get_price_of_coin_timeseries(coin, kwargs["bot"].coingecko_token)
+            for idx, coin in enumerate(portfolio):
+                price = ControllerPortfolio.__get_price_of_coin_timeseries(coin, kwargs["bot"].coingecko_token)
 
-            if price is None:
-                continue
+                if price is None:
+                    continue
 
-            if idx == 0:
-                prices = price
-            else:
-                prices[coin] = price[coin]
+                if idx == 0:
+                    prices = price
+                else:
+                    prices[coin] = price[coin]
 
-        sum_for_portfolio = deepcopy(prices)
-        for coin in sum_for_portfolio.columns:
-            sum_for_portfolio.loc[:, coin] *= portfolio[coin]
+                if type(price) is not pd.core.frame.DataFrame:
+                    kwargs["bot"].logger.warning(f'Данные по {coin} не были получены')
+                else:
+                    kwargs["bot"].logger.info(f'Данные по {coin} были получены')
 
-        summary_table = pd.DataFrame({
-            "name": [list(portfolio.keys())[0] for i in range(sum_for_portfolio.shape[0])],
-            "date": sum_for_portfolio.index,
-            "price": prices[list(portfolio.keys())[0]],
-            "sum": sum_for_portfolio[list(portfolio.keys())[0]]
-        })
+            sum_for_portfolio = deepcopy(prices)
+            for coin in sum_for_portfolio.columns:
+                sum_for_portfolio.loc[:, coin] *= portfolio[coin]
 
-        for coin in list(portfolio.keys())[1:]:
-            try:
-                new_df = pd.DataFrame({
-                    "name": [coin for _ in range(sum_for_portfolio.shape[0])],
-                    "date": sum_for_portfolio.index,
-                    "price": prices[coin],
-                    "sum": sum_for_portfolio[coin]
-                })
+            summary_table = pd.DataFrame({
+                "name": [list(portfolio.keys())[0] for i in range(sum_for_portfolio.shape[0])],
+                "date": sum_for_portfolio.index,
+                "price": prices[list(portfolio.keys())[0]],
+                "sum": sum_for_portfolio[list(portfolio.keys())[0]]
+            })
 
-                summary_table = pd.concat([summary_table, new_df])
-            except:
-                pass
+            for coin in list(portfolio.keys())[1:]:
+                try:
+                    new_df = pd.DataFrame({
+                        "name": [coin for _ in range(sum_for_portfolio.shape[0])],
+                        "date": sum_for_portfolio.index,
+                        "price": prices[coin],
+                        "sum": sum_for_portfolio[coin]
+                    })
 
-        kwargs["data"] = {"summary_table": summary_table}
+                    summary_table = pd.concat([summary_table, new_df])
+                except:
+                    pass
 
-        ViewPortfolio.assets_portfolio_changes(message, **kwargs)
+            kwargs["data"] = {"summary_table": summary_table}
+            ViewPortfolio.assets_portfolio_changes(message, **kwargs)
+        except:
+            kwargs["data"] = {"error": "Данные не были успешно получены"}
+            ViewPortfolio.visualise_asset_portfolio(message, **kwargs)
 
     @staticmethod
     def __get_price_of_coin(crypto_id, coingecko_token):
@@ -130,7 +149,7 @@ class ControllerPortfolio:
             "x_cg_demo_api_key": coingecko_token
         }
         response = requests.get(url, headers=headers)
-        if response not in [200, 300]:
+        if response.status_code not in [200, 300]:
             return {"error": "Не удалось получить данные из запроса"}
 
         response_data = response.json()
@@ -150,7 +169,7 @@ class ControllerPortfolio:
                 "X-CoinGecko-Api-Key": coingecko_token,
             }
             response = requests.get(url, params=params, headers=headers)
-            if response not in [200, 300]:
+            if response.status_code not in [200, 300]:
                 return {"error": "Не удалось получить данные из запроса"}
 
             response_data = response.json()

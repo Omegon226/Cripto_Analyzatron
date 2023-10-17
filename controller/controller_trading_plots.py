@@ -44,7 +44,7 @@ class ControllerTradingPlots:
             "X-CoinGecko-Api-Key": coingecko_token,
         }
         response = requests.get(url, headers=headers)
-        if response not in [200, 300]:
+        if response.status_code not in [200, 300]:
             return {"error": "Не удалось получить данные из запроса"}
 
         response_data = response.json()
@@ -72,7 +72,7 @@ class ControllerTradingPlots:
             "X-CoinGecko-Api-Key": coingecko_token,
         }
         response = requests.get(url, headers=headers)
-        if response not in [200, 300]:
+        if response.status_code not in [200, 300]:
             return {"error": "Не удалось получить данные из запроса"}
 
         response_data = response.json()

@@ -20,7 +20,7 @@ class ControllerFeatAndGreedData:
     def __get_data_from_request(period=90):
         url = "https://api.alternative.me/fng/?limit=0"
         response = requests.get(url)
-        if response not in [200, 300]:
+        if response.status_code not in [200, 300]:
             return {"error": "Не удалось получить данные из запроса"}
 
         response_data = json.loads(response.text)

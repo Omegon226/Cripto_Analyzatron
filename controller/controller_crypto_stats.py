@@ -29,7 +29,7 @@ class ControllerCryptoStats:
             "X-CMC_PRO_API_KEY": coinmarketcap_token,
         }
         coinmarketcap_response_1 = requests.get(url, params=parameters, headers=headers)
-        if coinmarketcap_response_1 not in [200, 300]:
+        if coinmarketcap_response_1.status_code not in [200, 300]:
             return {"error": "Не удалось получить данные из запроса"}
 
         coinmarketcap_response_1_data = coinmarketcap_response_1.json()
@@ -54,7 +54,7 @@ class ControllerCryptoStats:
             "X-CMC_PRO_API_KEY": coinmarketcap_token,
         }
         coinmarketcap_response_2 = requests.get(url, params=parameters, headers=headers)
-        if coinmarketcap_response_2 not in [200, 300]:
+        if coinmarketcap_response_2.status_code not in [200, 300]:
             return {"error": "Не удалось получить данные из запроса"}
 
         coinmarketcap_response_2_data = coinmarketcap_response_2.json()["data"][coin_id]

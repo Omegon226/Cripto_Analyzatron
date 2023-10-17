@@ -32,7 +32,7 @@ class ControllerGlobalStats:
         }
         # Отправляем запрос и получаем данные
         coinmarketcap_response = requests.get(url, headers=headers)
-        if coinmarketcap_response not in [200, 300]:
+        if coinmarketcap_response.status_code not in [200, 300]:
             return {"error": "Не удалось получить данные из запроса"}
 
         coinmarketcap_response_data = coinmarketcap_response.json()
@@ -66,7 +66,7 @@ class ControllerGlobalStats:
             "X-CMC_PRO_API_KEY": coinmarketcap_token,
         }
         response = requests.get(url, params=params, headers=headers)
-        if response not in [200, 300]:
+        if response.status_code not in [200, 300]:
             return {"error": "Не удалось получить данные из запроса"}
 
         response_data = response.json()
