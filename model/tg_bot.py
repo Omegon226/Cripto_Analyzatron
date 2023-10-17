@@ -49,7 +49,6 @@ class TGBot(telebot.TeleBot):
 
     def __register_handler(self):
         # Общие функции работы с агрегаторами
-        self.register_message_handler(ControllerHelp.help, commands=['help'], pass_bot=True)
         self.register_message_handler(ControllerGlobalStats.global_stats, commands=['global_stats'], pass_bot=True)
         self.register_message_handler(ControllerGlobalStats.top_coins, commands=['top_coins'], pass_bot=True)
         self.register_message_handler(ControllerCryptoStats.crypto_stats, commands=['crypto_stats'], pass_bot=True)
@@ -57,6 +56,7 @@ class TGBot(telebot.TeleBot):
         self.register_message_handler(ControllerFeatAndGreedData.fear_and_greed_data, commands=['fear_and_greed_data'], pass_bot=True)
         self.register_message_handler(ControllerTradingPlots.ohlc, commands=['ohlc'], pass_bot=True)
         self.register_message_handler(ControllerTradingPlots.market_chart, commands=['market_chart'], pass_bot=True)
+        self.register_message_handler(ControllerHelp.help, commands=['help'], pass_bot=True)
 
         # Функции портфеля активов
         self.register_message_handler(ControllerPortfolio.create_users_portfolio, commands=['create_asset_portfolio'], pass_bot=True)

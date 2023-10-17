@@ -34,6 +34,8 @@ class ViewGlobalStats:
 
     @staticmethod
     def top_coins(message, **kwargs):
+
+
         if "error" in kwargs["data"].keys():
             kwargs["bot"].send_message(
                 message.chat.id,

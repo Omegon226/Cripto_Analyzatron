@@ -57,6 +57,9 @@ class ControllerGlobalStats:
 
     @staticmethod
     def __get_data_top_coins(coinmarketcap_token, amount_of_coins=20):
+        if amount_of_coins > 50:
+            amount_of_coins = 50
+
         url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
         params = {
             "limit": amount_of_coins,
