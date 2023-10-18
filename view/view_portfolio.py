@@ -116,7 +116,7 @@ class ViewPortfolio:
     def __create_asset_portfolio_pie(data):
         global scope
 
-        portfolio = data["portfolio"]
+        portfolio = pd.DataFrame(data["portfolio"])
         portfolio_price = data["portfolio_price"]
 
         # Создаём график на котором будут отобображаться свечи и циклюрующие USDT
@@ -187,7 +187,7 @@ class ViewPortfolio:
     def __create_portfolio_changes_bar(data):
         global scope
 
-        summary_table = data["summary_table"]
+        summary_table = pd.DataFrame(data["summary_table"])
 
         # Создание визуализации
         fig = px.bar(

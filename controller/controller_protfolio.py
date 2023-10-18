@@ -32,7 +32,7 @@ class ControllerPortfolio:
                 else:
                     assets_info[asset] = "Failure"
 
-            kwargs["data"] = {"result_of_additing": assets_info}
+            kwargs["data"] = {"result_of_additing": assets_info.to_dict()}
             ViewPortfolio.change_asset_in_portfolio(message, **kwargs)
         except:
             kwargs["data"] = {"error": "Не получилось добавить или изменить актив"}
@@ -82,7 +82,7 @@ class ControllerPortfolio:
             portfolio["sum"] = portfolio["price"] * portfolio["amount"]
             portfolio_price = portfolio["sum"].sum()
 
-            kwargs["data"] = {"portfolio": portfolio, "portfolio_price": portfolio_price}
+            kwargs["data"] = {"portfolio": portfolio.to_dict(), "portfolio_price": portfolio_price}
             ViewPortfolio.visualise_asset_portfolio(message, **kwargs)
         except:
             kwargs["data"] = {"error": "Данные не были успешно получены"}
@@ -136,7 +136,7 @@ class ControllerPortfolio:
                 except:
                     pass
 
-            kwargs["data"] = {"summary_table": summary_table}
+            kwargs["data"] = {"summary_table": summary_table.to_dict()}
             ViewPortfolio.assets_portfolio_changes(message, **kwargs)
         except:
             kwargs["data"] = {"error": "Данные не были успешно получены"}

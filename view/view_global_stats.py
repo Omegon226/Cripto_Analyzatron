@@ -40,16 +40,21 @@ class ViewGlobalStats:
                 kwargs["data"]["error"]
             )
         else:
-            print_data = (
-                f'Топ {kwargs["data"]["amount_of_coins"]} монет:\n\n'
-            )
-            for coin in kwargs["data"]["top_coins"]:
-                print_data += f'* {coin["symbol"]} ({coin["slug"]}) Цена: {coin["quote"]["USD"]["price"]} $\n'
+            print_data = f'Топ {kwargs["data"]["amount_of_coins"]} монет:\n\n'
+            for idx, coin in enumerate(kwargs["data"]["top_coins"]):
+                print_data += f'{idx+1}) {coin["symbol"]} ({coin["slug"]}) Цена: {round(coin["quote"]["USD"]["price"], 8):f} $\n'
 
-            kwargs["bot"].send_message(
-                message.chat.id,
-                print_data
-            )
+                if len(print_data) > 3500:
+                    kwargs["bot"].send_message(
+                        message.chat.id,
+                        print_data
+                    )
+                    print_data = ""
+            if len(print_data) > 0:
+                kwargs["bot"].send_message(
+                    message.chat.id,
+                    print_data
+                )
 
     @staticmethod
     def menu_global_stats(call, **kwargs):
@@ -88,8 +93,8 @@ class ViewGlobalStats:
             print_data = (
                 f'Топ {kwargs["data"]["amount_of_coins"]} монет:\n\n'
             )
-            for coin in kwargs["data"]["top_coins"]:
-                print_data += f'* {coin["symbol"]} ({coin["slug"]}) Цена: {coin["quote"]["USD"]["price"]} $\n'
+            for idx, coin in enumerate(kwargs["data"]["top_coins"]):
+                print_data += f'{idx+1}) {coin["symbol"]} ({coin["slug"]}) Цена: {round(coin["quote"]["USD"]["price"], 8):f} $\n'
 
             kwargs["bot"].send_message(
                 call.from_user.id,
