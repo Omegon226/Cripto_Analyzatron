@@ -136,7 +136,7 @@ class ControllerPortfolio:
                 except:
                     pass
 
-            kwargs["data"] = {"summary_table": summary_table.to_dict()}
+            kwargs["data"] = {"summary_table": summary_table.to_dict(orient="list")}
             ViewPortfolio.assets_portfolio_changes(message, **kwargs)
         except:
             kwargs["data"] = {"error": "Данные не были успешно получены"}
