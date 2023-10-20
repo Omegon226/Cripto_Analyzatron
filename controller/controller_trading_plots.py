@@ -8,32 +8,66 @@ class ControllerTradingPlots:
     @staticmethod
     def ohlc(message, **kwargs):
         try:
-            query = re.findall(r"\D+ ([\w]+) ([\d]+)", message.text)[0]
-            kwargs["bot"].logger.info(f'Начало ohlc с запросом {query}')
-            kwargs["data"] = ControllerTradingPlots.__get_data_from_request_ohlc(kwargs["bot"].coingecko_token,
-                                                                                 query[0], query[1],
-                                                                                 kwargs["bot"].coins_data)
+            pattern = r"\s(?P<currency>\w+)(\s(?P<value>\d+|max))?"
+            match = re.search(pattern, message.text)
+
+            query = match.groupdict()
+
+            if "currency" in query.keys() and "value" in query.keys():
+                kwargs["bot"].logger.info(f'Начало построения ohlc по крипте: {query["currency"]} с кол-вом дней: {query["value"]}')
+                kwargs["data"] = ControllerTradingPlots.__get_data_from_request_ohlc(
+                    kwargs["bot"].coingecko_token,
+                    query["currency"],
+                    query["value"],
+                    kwargs["bot"].coins_data
+                )
+            elif "currency" in query.keys():
+                kwargs["bot"].logger.info(f'Начало построения ohlc по крипте: {query["currency"]} с кол-вом дней: {30}')
+                kwargs["data"] = ControllerTradingPlots.__get_data_from_request_ohlc(
+                    kwargs["bot"].coingecko_token,
+                    query["currency"],
+                    30,
+                    kwargs["bot"].coins_data
+                )
+            else:
+                raise Exception
+
         except:
-            kwargs["bot"].logger.info(f'Начало ohlc с запросом {["bitcoin", "30"]}')
-            kwargs["data"] = ControllerTradingPlots.__get_data_from_request_ohlc(kwargs["bot"].coingecko_token,
-                                                                                 "bitcoin", "30",
-                                                                                 kwargs["bot"].coins_data)
+            kwargs["bot"].logger.info(f'Ошибка при построении ohlc')
+            kwargs["data"] = {"error": "Неправильно переданы аргументы для расчётов"}
 
         ViewTradingPlots.ohlc(message, **kwargs)
 
     @staticmethod
     def market_chart(message, **kwargs):
         try:
-            query = re.findall(r"\D+ ([\w]+) ([\d]+)", message.text)[0]
-            kwargs["bot"].logger.info(f'Начало market_chart с запросом {query}')
-            kwargs["data"] = ControllerTradingPlots.__get_data_from_request_market_chart(kwargs["bot"].coingecko_token,
-                                                                                         query[0], query[1],
-                                                                                         kwargs["bot"].coins_data)
+            pattern = r"\s(?P<currency>\w+)(\s(?P<value>\d+|max))?"
+            match = re.search(pattern, message.text)
+
+            query = match.groupdict()
+
+            if "currency" in query.keys() and "value" in query.keys():
+                kwargs["bot"].logger.info(f'Начало построения market_chart по крипте: {query["currency"]} с кол-вом дней: {query["value"]}')
+                kwargs["data"] = ControllerTradingPlots.__get_data_from_request_market_chart(
+                    kwargs["bot"].coingecko_token,
+                    query["currency"],
+                    query["value"],
+                    kwargs["bot"].coins_data
+                )
+            elif "currency" in query.keys():
+                kwargs["bot"].logger.info(f'Начало построения market_chart по крипте: {query["currency"]} с кол-вом дней: {30}')
+                kwargs["data"] = ControllerTradingPlots.__get_data_from_request_market_chart(
+                    kwargs["bot"].coingecko_token,
+                    query["currency"],
+                    30,
+                    kwargs["bot"].coins_data
+                )
+            else:
+                raise Exception
         except:
-            kwargs["bot"].logger.info(f'Начало market_chart с запросом {["bitcoin", "30"]}')
-            kwargs["data"] = ControllerTradingPlots.__get_data_from_request_market_chart(kwargs["bot"].coingecko_token,
-                                                                                         "bitcoin", "30",
-                                                                                         kwargs["bot"].coins_data)
+            kwargs["bot"].logger.info(f'Ошибка при построении market_chart')
+            kwargs["data"] = {"error": "Неправильно переданы аргументы для расчётов"}
+
         ViewTradingPlots.market_chart(message, **kwargs)
 
     @staticmethod
