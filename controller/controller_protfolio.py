@@ -11,9 +11,13 @@ import time
 class ControllerPortfolio:
     @staticmethod
     def create_users_portfolio(message, **kwargs):
-        kwargs["bot"].logger.info(f'Начало create_users_portfolio')
-        kwargs["bot"].db.create_or_wipe_portfolio(message.from_user.id)
-        ViewPortfolio.create_users_portfolio(message, **kwargs)
+        try:
+            kwargs["bot"].logger.info(f'Начало create_users_portfolio')
+            kwargs["data"] = kwargs["bot"].db.create_or_wipe_portfolio(message.from_user.id)
+            ViewPortfolio.create_users_portfolio(message, **kwargs)
+        except:
+            kwargs["data"] = {"error": "Произошла ошибка при создании портфеля"}
+            ViewPortfolio.create_users_portfolio(message, **kwargs)
 
     @staticmethod
     def change_asset_in_portfolio(message, **kwargs):
@@ -32,7 +36,7 @@ class ControllerPortfolio:
                 else:
                     assets_info[asset] = "Failure"
 
-            kwargs["data"] = {"result_of_additing": assets_info.to_dict()}
+            kwargs["data"] = {"result_of_additing": assets_info}
             ViewPortfolio.change_asset_in_portfolio(message, **kwargs)
         except:
             kwargs["data"] = {"error": "Не получилось добавить или изменить актив"}
@@ -65,7 +69,7 @@ class ControllerPortfolio:
     def visualise_asset_portfolio(message, **kwargs):
         try:
             kwargs["bot"].logger.info(f'Начало visualise_asset_portfolio')
-            portfolio = kwargs["bot"].db.get_portfolio(message.from_user.id)
+            portfolio = kwargs["bot"].db.get_portfolio(message.from_user.id)["result"]
             data = {"name": [], "price": [], "amount": []}
 
             for coin in portfolio:
@@ -94,7 +98,7 @@ class ControllerPortfolio:
             kwargs["bot"].logger.info(f'Начало assets_portfolio_changes')
             prices = None
 
-            portfolio = kwargs["bot"].db.get_portfolio(message.from_user.id)
+            portfolio = kwargs["bot"].db.get_portfolio(message.from_user.id)["result"]
 
             for idx, coin in enumerate(portfolio):
                 price = ControllerPortfolio.__get_price_of_coin_timeseries(coin, kwargs["bot"].coingecko_token)

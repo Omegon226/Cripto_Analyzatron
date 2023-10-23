@@ -23,7 +23,7 @@ class ViewPortfolio:
         else:
             kwargs["bot"].send_message(
                 message.chat.id,
-                "Ваш портфель был создан! Теперь вы можете добавлять туда свои активы"
+                kwargs["data"]["success"]
             )
 
     @staticmethod
@@ -42,11 +42,11 @@ class ViewPortfolio:
 
             if len(failure_assets) == 0:
                 print_data = "Все активы были добавлены успешно!"
+            elif len(failure_assets) == len(kwargs["data"]["result_of_additing"]):
+                print_data = "Активы не были добавлены"
             elif len(failure_assets) > 0:
                 print_data = "Активы были добавлены, но некоторые не получилось добавить. Попробуйте поменять их название\n"
                 print_data += f"Не добавлены следующие активы: {' ,'.join(failure_assets)}"
-            elif len(failure_assets) == len(kwargs["data"]["result_of_additing"]):
-                print_data = "Активы не были добавлены"
             else:
                 print_data = "ABOBA"
 
@@ -76,15 +76,21 @@ class ViewPortfolio:
                 kwargs["data"]["error"]
             )
         else:
-            print_data = "Ваш портфель:\n\n"
+            if len(kwargs["data"]["result"]) == 0:
+                kwargs["bot"].send_message(
+                    message.chat.id,
+                    "Ваш на данный момент пуст"
+                )
+            else:
+                print_data = "Ваш портфель:\n\n"
 
-            for coin in kwargs["data"].keys():
-                print_data += f'* {coin}: {kwargs["data"][coin]}\n'
+                for coin in kwargs["data"]["result"].keys():
+                    print_data += f'* {coin}: {kwargs["data"]["result"][coin]}\n'
 
-            kwargs["bot"].send_message(
-                message.chat.id,
-                print_data
-            )
+                kwargs["bot"].send_message(
+                    message.chat.id,
+                    print_data
+                )
 
     @staticmethod
     def visualise_asset_portfolio(message, **kwargs):
