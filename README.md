@@ -1,7 +1,7 @@
 ![image](https://github.com/Omegon226/Crypto_Analyzatron/assets/69383841/3a5cbae0-1424-4c21-89b0-a9150037e8f7)
 
 <p align="center">ТГ Бот: https://t.me/CryptoAnalyzatronBot</p>
-
+ 
 # Проблема
 
 На текущий момент в свободном доступе мало ботов, которые могли-бы показывать объективную картину на крипторынке, причём за бесплатно. 
