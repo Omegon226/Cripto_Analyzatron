@@ -1,4 +1,4 @@
-![image](https://github.com/Omegon226/Crypto_Analyzatron/assets/69383841/3a5cbae0-1424-4c21-89b0-a9150037e8f7)
+![Без названия (63) (1)](https://github.com/Omegon226/Crypto_Analyzatron/assets/69383841/6e95f499-96cf-4231-b7e1-82abea1a7400)
 
 <p align="center">ТГ Бот: https://t.me/CryptoAnalyzatronBot</p>
  
